@@ -1,4 +1,4 @@
- User Management System API
+ For Apostraf Acadamy tests (User Management System API )
 
 A Django REST Framework based API for user management with JWT authentication, role-based access control, and MySQL database.
 
