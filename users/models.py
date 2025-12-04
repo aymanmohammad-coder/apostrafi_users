@@ -1,8 +1,3 @@
-"""
-User models for the User Management System.
-
-Defines custom User model with role-based permissions and related models.
-"""
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -11,7 +6,10 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 import re
 
-
+"""
+User models .
+Defines custom User model with role-based permissions and related models.
+"""
 class UserManager(BaseUserManager):
     """
     Custom user manager for creating users and superusers.
@@ -21,20 +19,7 @@ class UserManager(BaseUserManager):
     """
     
     def create_user(self, email, password=None, **extra_fields):
-        """
-        Create and return a regular user with the given email and password.
-        
-        Args:
-            email (str): User's email address
-            password (str): User's password
-            **extra_fields: Additional user fields
-            
-        Returns:
-            User: Created user instance
-            
-        Raises:
-            ValueError: If email is not provided
-        """
+      
         if not email:
             raise ValueError('The Email field must be set')
         
@@ -45,17 +30,7 @@ class UserManager(BaseUserManager):
         return user
     
     def create_superuser(self, email, password=None, **extra_fields):
-        """
-        Create and return a superuser with admin privileges.
-        
-        Args:
-            email (str): Superuser's email address
-            password (str): Superuser's password
-            **extra_fields: Additional user fields
-            
-        Returns:
-            User: Created superuser instance
-        """
+      
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
@@ -70,19 +45,9 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    """
-    Custom User model with role-based authentication.
-    
-    Extends Django's AbstractBaseUser and PermissionsMixin
-    to provide custom authentication and role management.
-    """
     
     class Role(models.TextChoices):
-        """
-        User role choices.
         
-        Defines available roles for users in the system.
-        """
         USER = 'USER', 'Regular User'
         ADMIN = 'ADMIN', 'Administrator'
         MODERATOR = 'MODERATOR', 'Moderator'
@@ -163,13 +128,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
     
-    # تغيير أسماء العلاقات العكسية لتجنب التعارض
     groups = models.ManyToManyField(
         'auth.Group',
         verbose_name='groups',
         blank=True,
         help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        related_name="custom_user_set",  # تغيير الاسم هنا
+        related_name="custom_user_set", 
         related_query_name="custom_user",
     )
     user_permissions = models.ManyToManyField(
@@ -177,7 +141,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name='user permissions',
         blank=True,
         help_text='Specific permissions for this user.',
-        related_name="custom_user_set",  # تغيير الاسم هنا
+        related_name="custom_user_set",  
         related_query_name="custom_user",
     )
     
@@ -196,60 +160,28 @@ class User(AbstractBaseUser, PermissionsMixin):
         ]
     
     def __str__(self):
-        """
-        String representation of the User.
         
-        Returns:
-            str: User's full name and email
-        """
         return f"{self.get_full_name()} ({self.email})"
     
     def get_full_name(self):
-        """
-        Get the user's full name.
         
-        Returns:
-            str: User's first and last name combined
-        """
+        
         return f"{self.first_name} {self.last_name}".strip()
     
     def get_short_name(self):
-        """
-        Get the user's short name.
         
-        Returns:
-            str: User's first name
-        """
         return self.first_name
     
     def has_role(self, role):
-        """
-        Check if user has a specific role.
         
-        Args:
-            role (str): Role to check
-            
-        Returns:
-            bool: True if user has the role, False otherwise
-        """
         return self.role == role
     
     def is_administrator(self):
-        """
-        Check if user is an administrator.
         
-        Returns:
-            bool: True if user is admin, False otherwise
-        """
         return self.has_role(self.Role.ADMIN)
     
     def clean(self):
-        """
-        Validate the model before saving.
         
-        Raises:
-            ValidationError: If validation fails
-        """
         super().clean()
         
         # Email validation
@@ -265,11 +197,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserActivity(models.Model):
-    """
-    Model to track user activities and login history.
-    
-    Stores information about user actions for auditing and monitoring.
-    """
     
     class ActivityType(models.TextChoices):
         """
@@ -313,9 +240,7 @@ class UserActivity(models.Model):
     )
     
     class Meta:
-        """
-        Metadata options for UserActivity model.
-        """
+        
         verbose_name = 'User Activity'
         verbose_name_plural = 'User Activities'
         ordering = ['-timestamp']
@@ -325,10 +250,5 @@ class UserActivity(models.Model):
         ]
     
     def __str__(self):
-        """
-        String representation of UserActivity.
         
-        Returns:
-            str: Activity description
-        """
         return f"{self.user.email} - {self.get_activity_type_display()} at {self.timestamp}"

@@ -17,27 +17,13 @@ from .permissions import IsOwnerOrAdmin, IsAdminUser
 
 
 class UserRegistrationView(generics.CreateAPIView):
-    """
-    API endpoint for user registration.
-    
-    Allows new users to create an account.
-    No authentication required.
-    """
-    
+
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
     
     def create(self, request, *args, **kwargs):
-        """
-        Create a new user account.
         
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            Response: HTTP response with user data or errors
-        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -66,15 +52,7 @@ class UserRegistrationView(generics.CreateAPIView):
         return Response(response_data, status=status.HTTP_201_CREATED)
     
     def get_client_ip(self, request):
-        """
-        Get client IP address from request.
-        
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            str: Client IP address
-        """
+       
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -84,24 +62,12 @@ class UserRegistrationView(generics.CreateAPIView):
 
 
 class UserLoginView(TokenObtainPairView):
-    """
-    API endpoint for user login.
     
-    Authenticates users and returns JWT tokens.
-    """
     
     serializer_class = UserLoginSerializer
     
     def post(self, request, *args, **kwargs):
-        """
-        Authenticate user and return JWT tokens.
-        
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            Response: HTTP response with tokens or error
-        """
+    
         serializer = self.get_serializer(data=request.data)
         
         if serializer.is_valid():
@@ -131,15 +97,7 @@ class UserLoginView(TokenObtainPairView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def get_client_ip(self, request):
-        """
-        Get client IP address from request.
         
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            str: Client IP address
-        """
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -149,59 +107,27 @@ class UserLoginView(TokenObtainPairView):
 
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    API endpoint for user profile management.
-    
-    Allows users to view, update, and delete their own profile.
-    """
     
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrAdmin]
     
     def get_object(self):
-        """
-        Get the user object for the current request.
-        
-        Returns:
-            User: Current authenticated user
-        """
+      
         return self.request.user
     
     def get_serializer_class(self):
-        """
-        Return appropriate serializer based on HTTP method.
-        
-        Returns:
-            Serializer: Serializer class
-        """
+      
         if self.request.method in ['PUT', 'PATCH']:
             return UserUpdateSerializer
         return UserSerializer
     
     def retrieve(self, request, *args, **kwargs):
-        """
-        Retrieve current user's profile.
-        
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            Response: HTTP response with user data
-        """
         user = self.get_object()
         serializer = self.get_serializer(user)
         return Response(serializer.data)
     
     def update(self, request, *args, **kwargs):
-        """
-        Update user profile.
         
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            Response: HTTP response with updated user data
-        """
         partial = kwargs.pop('partial', False)
         user = self.get_object()
         serializer = self.get_serializer(user, data=request.data, partial=partial)
@@ -222,15 +148,7 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         return Response(UserSerializer(user).data)
     
     def destroy(self, request, *args, **kwargs):
-        """
-        Delete user account.
         
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            Response: HTTP response with confirmation
-        """
         user = self.get_object()
         
         # Log account deletion activity
@@ -253,15 +171,7 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         )
     
     def get_client_ip(self, request):
-        """
-        Get client IP address from request.
         
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            str: Client IP address
-        """
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -271,23 +181,12 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class UserListView(generics.ListAPIView):
-    """
-    API endpoint for listing users.
-    
-    Allows administrators to view all users.
-    Regular users can only view their own profile.
-    """
     
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        """
-        Get queryset based on user role.
-        
-        Returns:
-            QuerySet: Filtered user queryset
-        """
+       
         user = self.request.user
         
         if user.is_administrator():
@@ -298,15 +197,7 @@ class UserListView(generics.ListAPIView):
             return User.objects.filter(id=user.id)
     
     def list(self, request, *args, **kwargs):
-        """
-        List users with appropriate filtering.
-        
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            Response: HTTP response with user list
-        """
+       
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         
@@ -319,11 +210,6 @@ class UserListView(generics.ListAPIView):
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    API endpoint for detailed user operations by ID.
-    
-    Allows administrators to manage any user.
-    """
     
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -331,26 +217,13 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'id'
     
     def get_serializer_class(self):
-        """
-        Return appropriate serializer based on HTTP method.
         
-        Returns:
-            Serializer: Serializer class
-        """
         if self.request.method in ['PUT', 'PATCH']:
             return UserUpdateSerializer
         return UserSerializer
     
     def destroy(self, request, *args, **kwargs):
-        """
-        Delete a user account (admin only).
         
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            Response: HTTP response with confirmation
-        """
         user = self.get_object()
         
         # Don't allow self-deletion for admin
@@ -380,15 +253,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
         )
     
     def get_client_ip(self, request):
-        """
-        Get client IP address from request.
         
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            str: Client IP address
-        """
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -398,23 +263,13 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class UserActivityView(generics.ListAPIView):
-    """
-    API endpoint for viewing user activity logs.
     
-    Allows users to view their own activity logs.
-    Admins can view all activity logs.
-    """
     
     serializer_class = UserActivitySerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        """
-        Get activity logs based on user role.
         
-        Returns:
-            QuerySet: Filtered activity logs
-        """
         user = self.request.user
         
         if user.is_administrator():
@@ -426,24 +281,12 @@ class UserActivityView(generics.ListAPIView):
 
 
 class LogoutView(APIView):
-    """
-    API endpoint for user logout.
     
-    Blacklists the refresh token to prevent further use.
-    """
     
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
-        """
-        Logout user by blacklisting refresh token.
         
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            Response: HTTP response with confirmation
-        """
         try:
             refresh_token = request.data.get('refresh')
             token = RefreshToken(refresh_token)
@@ -469,15 +312,7 @@ class LogoutView(APIView):
             )
     
     def get_client_ip(self, request):
-        """
-        Get client IP address from request.
         
-        Args:
-            request: HTTP request object
-            
-        Returns:
-            str: Client IP address
-        """
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]

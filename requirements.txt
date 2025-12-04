@@ -1,0 +1,11 @@
+asgiref==3.11.0
+Django==5.2.9
+django-cors-headers==4.9.0
+djangorestframework==3.16.1
+djangorestframework_simplejwt==5.5.1
+mysqlclient==2.2.7
+PyJWT==2.10.1
+PyMySQL==1.1.2
+sqlparse==0.5.4
+typing_extensions==4.15.0
+tzdata==2025.2

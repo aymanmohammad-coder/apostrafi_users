@@ -1,8 +1,3 @@
-"""
-Main URL configuration for User Management System.
-
-Includes API URLs and admin interface.
-"""
 
 from django.contrib import admin
 from django.urls import path, include

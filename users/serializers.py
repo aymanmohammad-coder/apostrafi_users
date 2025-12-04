@@ -1,9 +1,4 @@
-"""
-Serializers for User API.
 
-Converts complex data types (models) to native Python datatypes
-that can be easily rendered into JSON, XML, or other content types.
-"""
 
 from rest_framework import serializers
 from django.contrib.auth import authenticate
@@ -14,9 +9,7 @@ from .validators import password_validator, email_validator, validate_name, vali
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    """
-    Serializer for user registration.
-    """
+   
     
     password = serializers.CharField(
         write_only=True,
@@ -99,9 +92,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
-    """
-    Serializer for updating user information.
-    """
+    
     
     current_password = serializers.CharField(
         write_only=True,
@@ -174,11 +165,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 
 class UserLoginSerializer(serializers.Serializer):
-    """
-    Serializer for user login.
-    
-    Handles authentication and JWT token generation.
-    """
     
     email = serializers.EmailField(
         required=True,
@@ -192,21 +178,10 @@ class UserLoginSerializer(serializers.Serializer):
     )
     
     def validate(self, data):
-        """
-        Validate login credentials.
         
-        Args:
-            data (dict): Login credentials
-            
-        Returns:
-            dict: Validated data with user instance
-            
-        Raises:
-            serializers.ValidationError: If authentication fails
-        """
         email = data.get('email')
         password = data.get('password')
-        print('email: ',email,'password: ',password)
+        #print('email: ',email,'password: ',password)
         if email and password:
             # Authenticate user
             user = authenticate(
@@ -235,11 +210,7 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """
-    Serializer for user data (read operations).
     
-    Provides safe user data for listing and detail views.
-    """
     
     full_name = serializers.SerializerMethodField()
     role_display = serializers.CharField(
@@ -248,9 +219,7 @@ class UserSerializer(serializers.ModelSerializer):
     )
     
     class Meta:
-        """
-        Metadata for the serializer.
-        """
+        
         model = User
         fields = [
             'id', 'email', 'first_name', 'last_name', 'full_name',
@@ -262,25 +231,12 @@ class UserSerializer(serializers.ModelSerializer):
         ]
     
     def get_full_name(self, obj):
-        """
-        Get user's full name.
         
-        Args:
-            obj (User): User instance
-            
-        Returns:
-            str: User's full name
-        """
         return obj.get_full_name()
 
 
 
 class UserActivitySerializer(serializers.ModelSerializer):
-    """
-    Serializer for user activity logs.
-    
-    Provides read-only access to user activity history.
-    """
     
     activity_type_display = serializers.CharField(
         source='get_activity_type_display',
@@ -292,9 +248,7 @@ class UserActivitySerializer(serializers.ModelSerializer):
     )
     
     class Meta:
-        """
-        Metadata for the serializer.
-        """
+       
         model = UserActivity
         fields = [
             'id', 'user', 'user_email', 'activity_type',

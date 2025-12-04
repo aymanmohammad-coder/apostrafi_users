@@ -1,6 +1,3 @@
-"""
-Custom validators for user data validation.
-"""
 
 import re
 from django.core.exceptions import ValidationError
@@ -8,9 +5,7 @@ from django.utils.translation import gettext as _
 
 
 class PasswordValidator:
-    """
-    Validator for password strength requirements.
-    """
+    
     
     def __init__(self, min_length=8, require_digit=True, require_uppercase=True, 
                  require_lowercase=True, require_special_char=False):
@@ -21,9 +16,7 @@ class PasswordValidator:
         self.require_special_char = require_special_char
     
     def __call__(self, value):
-        """
-        هذه الدالة تجعل الـ object callable
-        """
+        
         errors = []
         
         if len(value) < self.min_length:
@@ -45,21 +38,17 @@ class PasswordValidator:
             raise ValidationError(errors)
 
 
-# إنشاء instance من الـ validator
 password_validator = PasswordValidator()
 
 
 class EmailValidator:
-    """
-    Custom email validator.
-    """
+    
     
     def __call__(self, value):
         if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', value):
             raise ValidationError(_('Enter a valid email address.'))
 
 
-# إنشاء instance من الـ validator
 email_validator = EmailValidator()
 
 
@@ -84,3 +73,4 @@ def validate_phone_number(value):
     
     if not re.match(r'^(\+|0|1)', value.replace(' ', '')):
         raise ValidationError(_('Phone number must start with +, 0, or 1.'))
+    
